@@ -1,0 +1,112 @@
+name: 🚀 Déploiement Continu
+
+# Se déclenche seulement quand le code est pushé sur main
+# ET que les tests CI passent
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:  # Déploiement manuel
+
+# Permissions nécessaires pour GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Variables d'environnement
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  # Job 1 : Construction du projet
+  build:
+    name: 🏗️ Construction
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📦 Checkout du code
+      uses: actions/checkout@v4
+    
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+    
+    - name: 🧪 Tests préalables
+      run: |
+        echo "🔍 Vérification avant déploiement..."
+        npm test
+        echo "✅ Tous les tests passent"
+    
+    - name: 🏗️ Build du projet
+      run: |
+        echo "🔨 Construction du projet pour la production..."
+        mkdir -p dist
+        cp index.html dist/
+        cp -r css dist/
+        cp -r js dist/
+        cp -r tests dist/
+        echo "✅ Build terminé"
+    
+    - name: 📄 Génération des métadonnées
+      run: |
+        echo "📊 Génération des informations de build..."
+        cat > dist/build-info.json << EOF
+        {
+          "buildDate": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+          "commit": "${{ github.sha }}",
+          "branch": "${{ github.ref_name }}",
+          "author": "${{ github.actor }}",
+          "repository": "${{ github.repository }}"
+        }
+        EOF
+        echo "✅ Métadonnées générées"
+    
+    - name: 📤 Upload des artefacts
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: ./dist
+
+  # Job 2 : Déploiement sur GitHub Pages
+  deploy:
+    name: 🌐 Déploiement GitHub Pages
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+    - name: 🚀 Déploiement sur GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
+    
+    - name: 🎉 Confirmation de déploiement
+      run: |
+        echo "🎉 Déploiement réussi !"
+        echo "🔗 URL : ${{ steps.deployment.outputs.page_url }}"
+
+  # Job 3 : Notifications
+  notification:
+    name: 📧 Notifications
+    runs-on: ubuntu-latest
+    needs: [build, deploy]
+    if: always()
+    
+    steps:
+    - name: 📨 Notification de succès
+      if: needs.deploy.result == 'success'
+      run: |
+        echo "✅ === DÉPLOIEMENT RÉUSSI ==="
+        echo "🎯 Projet : ${{ github.repository }}"
+        echo "🚀 Branche : ${{ github.ref_name }}"
+        echo "👤 Auteur : ${{ github.actor }}"
+        echo "📅 Date : $(date)"
+        echo "🔗 Commit : ${{ github.sha }}"
+    
+    - name: ❌ Notification d'échec
+      if: needs.deploy.result == 'failure'
+      run: |
+        echo "❌ === DÉPLOIEMENT ÉCHOUÉ ==="
+        echo "🎯 Projet : ${{ github.repository }}"
+        echo "🔍 Vérifiez les logs pour plus de détails"

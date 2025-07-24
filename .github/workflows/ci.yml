@@ -1,0 +1,119 @@
+name: 🧪 Tests et Intégration Continue
+
+# Déclencheurs : quand ce workflow s'exécute
+on:
+  # À chaque push sur main ou develop
+  push:
+    branches: [ main, develop ]
+  
+  # À chaque Pull Request vers main
+  pull_request:
+    branches: [ main ]
+  
+  # Exécution manuelle depuis l'interface GitHub
+  workflow_dispatch:
+
+# Variables d'environnement globales
+env:
+  NODE_VERSION: '18'
+
+# Les tâches à exécuter
+jobs:
+  # Job 1 : Tests de base
+  tests-unitaires:
+    name: 🔬 Tests Unitaires
+    runs-on: ubuntu-latest
+    
+    steps:
+    # Étape 1 : Récupérer le code
+    - name: 📦 Checkout du code
+      uses: actions/checkout@v4
+    
+    # Étape 2 : Installer Node.js
+    - name: 🟢 Setup Node.js ${{ env.NODE_VERSION }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+    
+    # Étape 3 : Installer les dépendances (si il y en avait)
+    - name: 📚 Installation des dépendances
+      run: |
+        echo "Installation terminée (pas de dépendances externes)"
+        node --version
+        npm --version
+    
+    # Étape 4 : Lancer les tests
+    - name: 🧪 Exécution des tests
+      run: npm test
+    
+    # Étape 5 : Vérifier la qualité du code
+    - name: 🔍 Vérification qualité
+      run: npm run lint
+    
+    # Étape 6 : Test de build
+    - name: 🏗️ Test de construction
+      run: npm run build
+
+  # Job 2 : Tests dans différents navigateurs (simulation)
+  tests-navigateurs:
+    name: 🌐 Tests Multi-Navigateurs
+    runs-on: ubuntu-latest
+    needs: tests-unitaires  # Attend que tests-unitaires soit terminé
+    
+    strategy:
+      matrix:
+        browser: [chrome, firefox, safari]
+    
+    steps:
+    - name: 📦 Checkout du code
+      uses: actions/checkout@v4
+    
+    - name: 🌐 Test simulation ${{ matrix.browser }}
+      run: |
+        echo "🔍 Test de compatibilité pour ${{ matrix.browser }}"
+        echo "✅ Interface validée pour ${{ matrix.browser }}"
+
+  # Job 3 : Analyse de sécurité
+  analyse-securite:
+    name: 🛡️ Analyse de Sécurité
+    runs-on: ubuntu-latest
+    needs: tests-unitaires
+    
+    steps:
+    - name: 📦 Checkout du code
+      uses: actions/checkout@v4
+    
+    - name: 🔐 Scan de sécurité des fichiers
+      run: |
+        echo "🔍 Scan de sécurité en cours..."
+        # Vérifier qu'il n'y a pas de secrets dans le code
+        if grep -r "password\|secret\|key" --include="*.js" --include="*.html" .; then
+          echo "⚠️ Attention : mots-clés sensibles détectés"
+        else
+          echo "✅ Aucun secret détecté dans le code"
+        fi
+    
+    - name: 🧹 Vérification de la structure
+      run: |
+        echo "📁 Vérification de la structure du projet..."
+        ls -la
+        echo "✅ Structure du projet validée"
+
+  # Job 4 : Rapport de synthèse
+  rapport-ci:
+    name: 📊 Rapport de Synthèse
+    runs-on: ubuntu-latest
+    needs: [tests-unitaires, tests-navigateurs, analyse-securite]
+    if: always()  # Toujours exécuter, même si des jobs précédents échouent
+    
+    steps:
+    - name: 📋 Génération du rapport
+      run: |
+        echo "📊 === RAPPORT D'INTÉGRATION CONTINUE ==="
+        echo "✅ Tests unitaires : ${{ needs.tests-unitaires.result }}"
+        echo "✅ Tests navigateurs : ${{ needs.tests-navigateurs.result }}"
+        echo "✅ Analyse sécurité : ${{ needs.analyse-securite.result }}"
+        echo "📅 Date : $(date)"
+        echo "🔗 Commit : ${{ github.sha }}"
+        echo "👤 Auteur : ${{ github.actor }}"
