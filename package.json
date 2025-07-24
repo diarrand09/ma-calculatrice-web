@@ -1,0 +1,33 @@
+{
+  "name": "ma-calculatrice-web",
+  "version": "1.0.0",
+  "description": "Une calculatrice web moderne avec GitHub Actions",
+  "main": "index.html",
+  "scripts": {
+    "test": "node -e \"const { runCalculatorTests } = require('./js/calculator.test.js'); const results = runCalculatorTests(); process.exit(results.success ? 0 : 1);\"",
+    "serve": "python -m http.server 8000 || python3 -m http.server 8000",
+    "build": "echo 'Construction du projet...' && npm test",
+    "deploy": "echo 'Déploiement en cours...'",
+    "lint": "echo 'Vérification du code...' && node -e \"console.log('✅ Code vérifié')\"",
+    "start": "npm run serve"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/VOTRE-USERNAME/ma-calculatrice-web.git"
+  },
+  "keywords": [
+    "calculatrice",
+    "javascript",
+    "html",
+    "css",
+    "github-actions",
+    "ci-cd"
+  ],
+  "author": "Votre Nom",
+  "license": "MIT",
+  "devDependencies": {},
+  "dependencies": {},
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

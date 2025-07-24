@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculatrice Web - GitHub Actions Demo</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="calculator">
+            <div class="header">
+                <h1>🧮 Ma Calculatrice</h1>
+                <p>Projet avec GitHub Actions</p>
+            </div>
+            
+            <div class="display">
+                <input type="text" id="display" readonly value="0">
+            </div>
+            
+            <div class="buttons">
+                <!-- Première ligne -->
+                <button class="btn btn-secondary" onclick="clearAll()">C</button>
+                <button class="btn btn-secondary" onclick="clearEntry()">CE</button>
+                <button class="btn btn-secondary" onclick="deleteDigit()">⌫</button>
+                <button class="btn btn-operator" onclick="appendOperator('/')" data-testid="divide">÷</button>
+                
+                <!-- Deuxième ligne -->
+                <button class="btn btn-number" onclick="appendNumber('7')" data-testid="seven">7</button>
+                <button class="btn btn-number" onclick="appendNumber('8')" data-testid="eight">8</button>
+                <button class="btn btn-number" onclick="appendNumber('9')" data-testid="nine">9</button>
+                <button class="btn btn-operator" onclick="appendOperator('*')" data-testid="multiply">×</button>
+                
+                <!-- Troisième ligne -->
+                <button class="btn btn-number" onclick="appendNumber('4')" data-testid="four">4</button>
+                <button class="btn btn-number" onclick="appendNumber('5')" data-testid="five">5</button>
+                <button class="btn btn-number" onclick="appendNumber('6')" data-testid="six">6</button>
+                <button class="btn btn-operator" onclick="appendOperator('-')" data-testid="subtract">-</button>
+                
+                <!-- Quatrième ligne -->
+                <button class="btn btn-number" onclick="appendNumber('1')" data-testid="one">1</button>
+                <button class="btn btn-number" onclick="appendNumber('2')" data-testid="two">2</button>
+                <button class="btn btn-number" onclick="appendNumber('3')" data-testid="three">3</button>
+                <button class="btn btn-operator" onclick="appendOperator('+')" data-testid="add">+</button>
+                
+                <!-- Cinquième ligne -->
+                <button class="btn btn-number btn-zero" onclick="appendNumber('0')" data-testid="zero">0</button>
+                <button class="btn btn-number" onclick="appendNumber('.')" data-testid="decimal">.</button>
+                <button class="btn btn-equals" onclick="calculate()" data-testid="equals">=</button>
+            </div>
+            
+            <div class="history">
+                <h3>Historique</h3>
+                <ul id="history-list"></ul>
+                <button class="btn btn-secondary" onclick="clearHistory()">Effacer historique</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tests en développement -->
+    <div id="test-results" style="display: none;"></div>
+    
+    <script src="js/calculator.js"></script>
+</body>
+</html>
